@@ -1,11 +1,4 @@
-logs/*
-!.gitkeep
-node_modules/
-bower_components/
-.bowerrc
-tmp
-.DS_Store
-.idea
+# Created by .ignore support plugin (hsz.mobi)
 ### Node template
 # Logs
 logs
@@ -55,6 +48,9 @@ jspm_packages
 # Yarn Integrity file
 .yarn-integrity
 
+#build directory
+dist
 
-public/
-dist/
+.idea/
+
+
