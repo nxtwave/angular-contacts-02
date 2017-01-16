@@ -34,7 +34,12 @@ const paths = {
 
 server.create();
 
-gulp.task('clean', cb => del(paths.dist + '**/*', cb));
+// gulp.task('clean', cb => del(paths.dist + '**/*', cb));
+
+gulp.task('clean', function(cb) {
+  del(paths.dist + '**/*');
+  cb();
+});
 
 gulp.task('templates', () => {
   return gulp.src(paths.templates)
@@ -43,7 +48,6 @@ gulp.task('templates', () => {
       root: 'app',
       standalone: true,
       transformUrl: function (url) {
-        console.log('template.url', url.replace(path.dirname(url), '.'));
         return url.replace(path.dirname(url), '.');
       }
     }))
@@ -52,9 +56,9 @@ gulp.task('templates', () => {
 
 gulp.task('modules', ['templates'], () => {
   return gulp.src(paths.modules.map(item => 'node_modules/' + item))
-.pipe(concat('vendor.js'))
-  .pipe(gulpif(argv.deploy, uglify()))
-  .pipe(gulp.dest(paths.dist + 'js/'));
+    .pipe(concat('vendor.js'))
+    .pipe(gulpif(argv.deploy, uglify()))
+    .pipe(gulp.dest(paths.dist + 'js/'));
 });
 
 gulp.task('styles', () => {
@@ -63,8 +67,8 @@ gulp.task('styles', () => {
     .pipe(gulp.dest(paths.dist + 'css/'));
 });
 
-gulp.task('fonts', () => {
-  return gulp.src(paths.fonts, { base: '' })
+gulp.task('fonts', (cb) => {
+  return gulp.src(paths.fonts)
     .pipe(gulp.dest(paths.dist + 'fonts/'));
 });
 
@@ -96,8 +100,12 @@ gulp.task('copy', ['clean'], () => {
 
 gulp.task('watch', ['serve', 'scripts'], () => {
   gulp.watch([paths.scripts, paths.templates], ['scripts']);
-gulp.watch(paths.styles, ['styles']);
+  gulp.watch(paths.styles, ['styles']);
 });
+
+gulp.task('build', ['copy','styles','fonts','scripts']);
+
+gulp.task('start', ['build']);
 
 gulp.task('default', [
   'copy',
