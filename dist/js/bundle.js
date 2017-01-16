@@ -18,6 +18,15 @@
   'use strict';
 
   angular
+    .module('app.about', []);
+
+
+})();
+
+(function() {
+  'use strict';
+
+  angular
     .module('app.contacts', []);
 
 })();
@@ -42,15 +51,6 @@
   'use strict';
 
   angular.module('app.services', []);
-
-})();
-
-(function() {
-  'use strict';
-
-  angular
-    .module('app.about', []);
-
 
 })();
 
@@ -99,6 +99,27 @@
         url: '/{contactId}',
         component: 'contacts.detail'
       })
+
+  }
+
+})();
+
+(function() {
+  'use strict';
+
+  angular
+    .module('app.about')
+    .component('about', {
+      templateUrl: './about.view.html',
+      controller: AboutController
+    });
+
+  function AboutController() {
+    var vm = this;
+
+    vm.$onInit = function() {
+
+    };
 
   }
 
@@ -302,27 +323,6 @@
     function getStates() {
       return $q.when(usStates);
     }
-
-  }
-
-})();
-
-(function() {
-  'use strict';
-
-  angular
-    .module('app.about')
-    .component('about', {
-      templateUrl: './about.view.html',
-      controller: AboutController
-    });
-
-  function AboutController() {
-    var vm = this;
-
-    vm.$onInit = function() {
-
-    };
 
   }
 
