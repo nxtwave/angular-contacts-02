@@ -16,7 +16,7 @@ const argv = yargs.argv;
 const root = 'src/';
 
 const paths = {
-  dist: './dist/',
+  dist: './public/',
   scripts: [`${root}/app/**/*.js`],
   styles: [`${root}/sass/*.scss`, 'node_modules/bootstrap/dist/css/bootstrap.css'],
   fonts: 'node_modules/bootstrap/dist/fonts/*',
@@ -86,10 +86,7 @@ gulp.task('scripts', ['modules'], () => {
 gulp.task('serve', () => {
   return server.init({
     files: [`${paths.dist}/**`],
-    port: 4000,
-    server: {
-      baseDir: paths.dist
-    }
+    proxy: 'localhost:3000'
   });
 });
 

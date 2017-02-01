@@ -23,7 +23,7 @@
     vm.$onInit = function activate() {
       Dataservice.getContacts()
         .then(function(contacts) {
-          vm.contacts = contacts;
+          vm.contacts = contacts.data;
         });
     };
 

@@ -31,7 +31,7 @@
 
       Dataservice.getContact(vm.contactId)
         .then(function(contact) {
-          vm.contact = contact;
+          vm.contact = contact.data;
         });
 
       Dataservice.getStates()
@@ -44,7 +44,13 @@
      * form submit handler
      */
     vm.onSubmit = function() {
-      $state.go('contacts.list');
+      Dataservice.updateContact(vm.contact._id, vm.contact)
+        .then(function() {
+          console.log('success');
+          $state.go('contacts.list');
+        }, function(error) {
+          console.log('error', error);
+        });
     };
 
     /**
