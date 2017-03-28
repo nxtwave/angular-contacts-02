@@ -8,6 +8,7 @@
     'app.about',
     'app.layout',
     'app.services',
+    'app.filters',
     'templates'
   ]);
 

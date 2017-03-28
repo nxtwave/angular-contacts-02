@@ -28,8 +28,14 @@
       .state({
         name: 'contacts',
         abstract: true,
-        url: '/contacts',
-        component: 'contacts'
+        url: '/contacts?page',
+        component: 'contacts',
+        params: {
+          page: {
+            value: '0',
+            squash: true
+          }
+        }
       })
 
       .state({

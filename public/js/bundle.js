@@ -8,6 +8,7 @@
     'app.about',
     'app.layout',
     'app.services',
+    'app.filters',
     'templates'
   ]);
 
@@ -28,6 +29,14 @@
 
   angular
     .module('app.contacts', []);
+
+})();
+
+(function() {
+  'use strict';
+
+  angular
+    .module('app.filters', []);
 
 })();
 
@@ -84,8 +93,14 @@
       .state({
         name: 'contacts',
         abstract: true,
-        url: '/contacts',
-        component: 'contacts'
+        url: '/contacts?page',
+        component: 'contacts',
+        params: {
+          page: {
+            value: '0',
+            squash: true
+          }
+        }
       })
 
       .state({
@@ -134,6 +149,22 @@
       template: '<section><ui-view></ui-view></section>',
       controllerAs: 'vm'
     });
+
+})();
+
+(function() {
+  'use strict';
+
+  angular
+    .module('app.filters')
+    .filter('pagination', Pagination);
+
+  function Pagination() {
+    return function(array, page, pageSize) {
+      var start = page * pageSize;
+      return (array === undefined) ? [] : array.slice(start, start + pageSize);
+    };
+  }
 
 })();
 
@@ -368,13 +399,18 @@
       controllerAs: 'vm'
     });
 
-  ContactsController.$inject = ['Dataservice'];
+  ContactsController.$inject = ['$stateParams', '$state', 'Dataservice'];
 
-  function ContactsController(Dataservice) {
+  function ContactsController($stateParams, $state, Dataservice) {
     var vm = this;
 
     // model list of contacts:
     vm.contacts = undefined;
+
+    vm.pageSize = 15;
+
+    vm.page = parseInt($stateParams.page, 10);
+
 
     /**
      * Initialize component
@@ -384,6 +420,19 @@
         .then(function(contacts) {
           vm.contacts = contacts.data;
         });
+
+    };
+
+    vm.next = function() {
+      $state.go('.', {page: vm.page + 1});
+    };
+
+    vm.previous = function() {
+      $state.go('.', {page: vm.page - 1});
+    };
+
+    vm.goto = function(page) {
+      $state.go('.', {page: page});
     };
 
   }
@@ -395,4 +444,4 @@ $templateCache.put('./home.view.html','<section><img src="/img/home-jumbo-1600.j
 $templateCache.put('./layout.view.html','<div><!-- Fixed navbar --><nav class="navbar navbar-default navbar-fixed-top"><div class="container"><div class="navbar-header"><button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar"><span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button> <a class="navbar-brand" href="#">I-Contact</a></div><div id="navbar" class="navbar-collapse collapse"><ul class="nav navbar-nav"><li ui-sref-active="active"><a ui-sref="home">Home</a></li><li ui-sref-active="active"><a ui-sref="contacts.list">Contacts</a></li><li ui-sref-active="active"><a ui-sref="about">About</a></li></ul></div></div></nav><div class="container"><ui-view></ui-view></div></div>');
 $templateCache.put('./contacts-details.view.html','<section><style>.icon {\n      font-size: 80%;\n    }</style><div class="page-header"><h1><span class="glyphicon glyphicon-user icon" aria-hidden="true"></span> {{vm.contact.firstName}}&nbsp;{{vm.contact.lastName}}</h1></div><form class="form" ng-submit="vm.onSubmit()"><div class="row"><div class="col-lg-4"><div class="form-group"><label for="company">Company</label><input type="text" class="form-control" id="company" name="company" ng-model="vm.contact.company"></div></div></div><div class="row"><div class="col-sm-12 col-lg-4"><div class="form-group"><label for="lastname">Lastname</label><input type="text" class="form-control" id="lastname" name="lastname" ng-model="vm.contact.lastName"></div></div><div class="col-sm-12 col-lg-4"><div class="form-group"><label for="firstname">Firstname</label><input type="text" class="form-control" id="firstname" name="firstname" ng-model="vm.contact.firstName"></div></div></div><div class="row"><div class="col-lg-4"><div class="form-group"><label for="street">Street</label><input type="text" class="form-control" id="street" name="street" ng-model="vm.contact.street"></div></div></div><div class="row"><div class="col-lg-4"><div class="form-group"><label for="city">City</label><input type="text" class="form-control" id="city" name="city" ng-model="vm.contact.city"></div></div><div class="col-lg-2"><div class="form-group"><label for="state">State</label><select class="form-control" id="state" name="state" ng-model="vm.contact.state"><option ng-repeat="state in vm.states" value="{{state.abbreviation}}">{{state.name}}</option></select></div></div><div class="col-lg-2"><div class="form-group"><label for="zip">Zip</label><input type="text" class="form-control" id="zip" name="state" ng-model="vm.contact.zip"></div></div></div><div class="row"><div class="col-lg-4"><div class="form-group"><label for="phone">Phone</label><input type="tel" class="form-control" id="phone" name="phone" ng-model="vm.contact.phone"></div></div><div class="col-lg-4"><div class="form-group"><label for="email">Email</label><input type="email" class="form-control" id="email" name="email" ng-model="vm.contact.email"></div></div></div><hr><button class="btn btn-default" type="button" ng-click="vm.cancel()">Cancel</button> <button class="btn btn-primary" type="submit">Save</button></form></section>');
 $templateCache.put('./contacts-list-02.view.html','<section><style>.panel-heading {\n      padding-left: 7px;\n    }\n    .panel {\n\n    }\n    ul.pagination {\n      margin: 0;\n    }</style><!--<div class="page-header">\n    <h1><span class="glyphicon glyphicon-list-alt icon-header" aria-hidden="true"></span>&nbsp;Contacts List</h1>\n  </div>--><!--<div class="well well-sm">\n    <nav aria-label="Page navigation">\n      <ul class="pagination">\n        <li>\n          <a href="#" aria-label="Previous">\n            <span aria-hidden="true">&laquo;</span>\n          </a>\n        </li>\n        <li><a href="#">1</a></li>\n        <li><a href="#">2</a></li>\n        <li><a href="#">3</a></li>\n        <li><a href="#">4</a></li>\n        <li><a href="#">5</a></li>\n        <li>\n          <a href="#" aria-label="Next">\n            <span aria-hidden="true">&raquo;</span>\n          </a>\n        </li>\n      </ul>\n    </nav>\n  </div>--><div class="panel panel-primary"><div class="panel-heading"><b>Contacts List</b></div><div class="well well-sm"><ul class="pagination"><li><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li><li><a href="#">1</a></li><li><a href="#">2</a></li><li><a href="#">3</a></li><li><a href="#">4</a></li><li><a href="#">5</a></li><li><a href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li></ul></div><div class="table-responsive"><table class="table"><thead><tr><th scope="col">Contact</th><th scope="col">Company</th><th scope="col">City</th><th scope="col">Phone</th><th scope="col">Email</th></tr></thead><tbody><tr ng-repeat="contact in vm.contacts | limitTo:20"><td><a ui-sref="contacts.detail({contactId: contact._id})">{{contact.lastName}}, {{contact.firstName}}</a></td><td>{{contact.company}}</td><td>{{contact.city}}, {{contact.state}}</td><td>{{contact.phone}}</td><td>{{contact.email}}</td></tr></tbody></table></div></div></section>');
-$templateCache.put('./contacts-list.view.html','<section><style>div.page-header {\n      margin-bottom: 10px;\n    }\n\n    nav ul.pagination, .btn-group {\n      margin-top: 0;\n    }</style><div class="row"><div class="col-lg-12"><div class="page-header"><h1><span class="glyphicon glyphicon-list-alt icon-header" aria-hidden="true"></span>&nbsp;Contacts List</h1></div></div></div><div class="row" style="margin-bottom: 15px"><div class="col-lg-12"><div class="btn-toolbar" role="toolbar"><div class="btn-group" role="group" aria-label="..."><button type="button" class="btn btn-default"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button> <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button></div><div class="btn-group" role="group" aria-label="..."><button type="button" class="btn btn-default"><span aria-hidden="true">&laquo;</span></button> <button type="button" class="btn btn-default">1</button> <button type="button" class="btn btn-default">2</button> <button type="button" class="btn btn-default">3</button> <button type="button" class="btn btn-default"><span aria-hidden="true">&raquo;</span></button></div></div></div></div><div class="row"><div class="col-lg-12"><div class="table-responsive"><table class="table"><thead><tr><th scope="col">Contact</th><th scope="col">Company</th><th scope="col">City</th><th scope="col">Phone</th><th scope="col">Email</th></tr></thead><tbody><tr ng-repeat="contact in vm.contacts | limitTo:10"><td><a ui-sref="contacts.detail({contactId: contact._id})">{{contact.lastName}}, {{contact.firstName}}</a></td><td>{{contact.company}}</td><td>{{contact.city}}, {{contact.state}}</td><td>{{contact.phone}}</td><td>{{contact.email}}</td></tr></tbody></table></div></div></div></section>');}]);
+$templateCache.put('./contacts-list.view.html','<section><style>div.page-header {\n      margin-bottom: 10px;\n    }\n\n    nav ul.pagination, .btn-group {\n      margin-top: 0;\n    }</style><div class="row"><div class="col-lg-12"><div class="page-header"><h1><span class="glyphicon glyphicon-list-alt icon-header" aria-hidden="true"></span>&nbsp;Contacts List</h1></div></div></div><div class="row" style="margin-bottom: 15px"><div class="col-lg-12"><div class="btn-toolbar" role="toolbar"><div class="btn-group" role="group" aria-label="..."><button type="button" class="btn btn-default"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button> <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button></div><div class="btn-group" role="group" aria-label="..."><button type="button" class="btn btn-default" ng-click="vm.previous()"><span aria-hidden="true">&laquo;</span></button> <button type="button" class="btn btn-default" ng-click="vm.goto(1)">1</button> <button type="button" class="btn btn-default" ng-click="vm.goto(2)">2</button> <button type="button" class="btn btn-default" ng-click="vm.goto(3)">3</button> <button type="button" class="btn btn-default" ng-click="vm.goto(4)">4</button> <button type="button" class="btn btn-default" ng-click="vm.goto(5)">5</button> <button type="button" class="btn btn-default" ng-click="vm.next()"><span aria-hidden="true">&raquo;</span></button></div></div></div></div><div class="row"><div class="col-lg-12"><div class="table-responsive"><table class="table"><thead><tr><th scope="col">Contact</th><th scope="col">Company</th><th scope="col">City</th><th scope="col">Phone</th><th scope="col">Email</th></tr></thead><tbody><tr ng-repeat="contact in filtered = (vm.contacts | pagination:vm.page:vm.pageSize)"><td><a ui-sref="contacts.detail({contactId: contact._id})">{{contact.lastName}}, {{contact.firstName}}</a></td><td>{{contact.company}}</td><td>{{contact.city}}, {{contact.state}}</td><td>{{contact.phone}}</td><td>{{contact.email}}</td></tr></tbody></table></div></div></div></section>');}]);

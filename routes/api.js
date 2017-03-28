@@ -6,13 +6,12 @@ var Dataservice = require('../lib/dataservice');
  * Get list of contacts
  */
 router.get('/contacts', function(req, res) {
-  Dataservice.list(function(err, result) {
-    if (err) {
-      console.log(err);
-    } else {
+  Dataservice.list()
+    .then(function(result) {
       res.json(result);
-    }
-  });
+    }, function(err) {
+      res.send(err);
+    });
 });
 
 /**
@@ -20,13 +19,12 @@ router.get('/contacts', function(req, res) {
  */
 router.get('/contact/:id', function(req, res) {
   var id = req.params.id;
-  Dataservice.get(id, function(err, result) {
-    if (err) {
-      console.log(err);
-    } else {
+  Dataservice.get(id)
+    .then(function(result) {
       res.json(result);
-    }
-  });
+    }, function(err) {
+      res.send(err);
+    })
 });
 
 /**
@@ -34,15 +32,14 @@ router.get('/contact/:id', function(req, res) {
  */
 router.put('/contact/:id', function(req, res) {
   var id = req.params.id;
-  Dataservice.update(id, req.body, function(err, result) {
-    if (err) {
-      console.log(err);
-    } else {
+  Dataservice.update(id, req.body)
+    .then(function(result) {
       res.json(result);
-    }
-  });
+    }, function(err) {
+        res.send(err);
+      }
+    );
+
 });
 
 module.exports = router;
-
-
